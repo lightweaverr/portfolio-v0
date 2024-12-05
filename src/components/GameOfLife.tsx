@@ -90,7 +90,12 @@ const GameOfLife = () => {
     /**
      * Texture
      */
-    initialStateTextureRef.current = createDataTexture(newCanvasSize);
+    const newGridSize = {
+      width: Math.ceil(newCanvasSize.width / cellSize),
+      height: Math.ceil(newCanvasSize.height / cellSize)
+    };
+    initialStateTextureRef.current = createDataTexture(newGridSize);
+
 
     /**
      * Mesh (Geometry and Material)
@@ -167,6 +172,8 @@ const GameOfLife = () => {
     if (!isRunning) return;
 
 
+
+
     if (!materialRef.current || !rendererRef.current || !sceneRef.current || !cameraRef.current || !bufferSceneRef.current) return;
 
 
@@ -240,6 +247,7 @@ const GameOfLife = () => {
 
 
   useEffect(() => {
+
     init();
     onWindowResize();
     animate();

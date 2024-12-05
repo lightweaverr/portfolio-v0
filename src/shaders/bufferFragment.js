@@ -32,7 +32,7 @@ float GetNeighbours(vec2 p) {
           // Apply offset and sample texture	 
           vec4 lookup = texture2D(uTexture, p + offset); 
            // Accumulate the result
-          count += lookup.r > 0.5 ? 1.0 : 0.0;
+          count += lookup.r > 0.2 ? 1.0 : 0.0;
       }
   }
 
@@ -46,24 +46,24 @@ void main() {
 
      float neighbors = 0.0;
 
-    if(uFrame % 5 != 0) {
+    if(uFrame % 20 != 0) {
         color = texture2D(uTexture, vUv).xyz;
     } 
     else {
 
         neighbors += GetNeighbours(vUv);
 
-        bool alive = texture2D(uTexture, vUv).x > 0.5;
+        bool alive = texture2D(uTexture, vUv).x > 0.2;
 
         if(alive && (neighbors == 2.0 || neighbors == 3.0)) { //cell is alive
             float colVal = remap(neighbors, 0.0, 3.0, 0.5, 1.0);
 
       		//Any live cell with two or three live neighbours lives on to the next generation.
-            color = vec3(0.7, 0.4, 0.7);
+            color = vec3(0.7);
 
         } else if(!alive && (neighbors == 3.0)) { 
         //Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-            color = vec3(0.7, 0.2, 0.2);
+            color = vec3(0.3);
 
         }
     }

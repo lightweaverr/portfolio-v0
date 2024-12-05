@@ -3,7 +3,7 @@ import React from 'react'
 const LandingPage = () => {
   
   return (
-    <div>
+    <div className='h-full'>
       <h1>Landing Page</h1>
     </div>
   )
