@@ -1,99 +1,114 @@
 'use client';
-import React, { useRef, useEffect, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import TimelineEvent from './TimelineEvent';
+
+import React, { useEffect } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 
 
-interface ScrollingTimelineProps {
-  events: TimelineEvent[];
-}
+const CHARACTER_SIZE = 60; // Assuming character sprite is 48x48px
+const TILE_SIZE = 60; // Assuming tile is 32x32px
+const PATH_LENGTH = 20; // Number of tiles to show
 
-const ScrollingTimeline: React.FC<ScrollingTimelineProps> = ({ events }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const [rootInView, setRootInView] = useState(false);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
+const ScrollingTimeline = ({ events }: any) => {
+  const { scrollYProgress } = useScroll();
+
+  // Smooth out the scroll progress
+  const smoothProgress = useSpring(scrollYProgress, {
+    damping: 100,
+    stiffness: 100
   });
 
-  const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  // Transform scroll progress to character position
+  const characterY = useTransform(
+    smoothProgress,
+    [0, 1],
+    ['-100%', '2000%']
+  );
 
-  useEffect(() => { 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setRootInView(entry.isIntersecting);
-      },
-      { threshold: 0.5 }
-    );
-
-    if (rootRef.current) {
-      observer.observe(rootRef.current);
-    }
-
-    return () => {
-      if (rootRef.current) {
-        observer.unobserve(rootRef.current);
-      }
-    };
-  }, []);
-
-  const imageY = useTransform(scrollYProgress, [0, 1], ["-280%", "1800%"]);
+  // Generate tiles for the path
+  const tiles = Array.from({ length: PATH_LENGTH }, (_, index) => ({
+    id: index,
+    initialY: 100 + (index * TILE_SIZE)
+  }));
 
   return (
-
-
-    <div className="min-h-screen flex">
-      {/* Left half */}
-      <div className="w-1/3 flex items-center justify-center py-20 frosted-glass m-10 rounded-lg">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold">Left Side Content</h2>
-          <p className="mt-4">This is the content on the left side.</p>
-        </div>
+    <div className="flex w-full min-h-screen">
+      {/* Left section - 1/3 width */}
+      <div className="w-1/3 p-8">
+        <h2 className="text-2xl font-bold mb-4">Side Content</h2>
+        <p>Scroll to see the animation...</p>
       </div>
 
-      {/* Right half */}
-      <div ref={containerRef} className="w-2/3 flex items-center justify-center py-20 frosted-glass m-10 rounded-lg">
-        <div className="text-center">
-          <div  className="relative min-h-screen py-20">
+      {/* Right section - 2/3 width */}
+      <div className="w-2/3 p-8 relative overflow-hidden">
+        <div className="relative h-[200vh]"> {/* Extra height for scrolling */}
+          {/* Path tiles */}
+
+          {tiles.map((tile, index) => (
+
             <motion.div
-              className="absolute left-1/2 top-0 bottom-0 w-1 bg-blue-500 origin-top"
-              style={{ scaleY: lineHeight }}
-            />
-
-
-            <motion.img
-              src="/images/character.png" 
-              alt="Moving Icon"
-              className="left-1/2 -translate-x-1/2" // Adjust size here
+              key={tile.id}
+              className="absolute left-1/2 transform -translate-x-1/2"
               style={{
-                y: imageY,
-                width: '64px', // Set your desired width
-                height: '64px', // Set your desired height
-                imageRendering: 'pixelated', // Ensures scaling uses nearest-neighbor
+                width: TILE_SIZE,
+                height: TILE_SIZE,
+                y: tile.initialY,
+              }}
+              initial={{
+                opacity: 0,
+                scale: 0.5,
+              }}
+              whileInView={{
+                opacity: 1,
+                scale: 1,
+                y: index * TILE_SIZE,
+              }}
+              viewport={{ once: true, margin: "100px" }}
+              transition={{
+                duration: 0.5,
+                delay: index * 0.1
+              }}
+            >
+              <img
+                src="/images/tile.png"
+                alt="Path tile"
+                className="w-full h-full object-cover"
+                style={{
+                  imageRendering: 'pixelated',
+                  WebkitImageRendering: 'pixelated',
+                  MozImageRendering: 'pixelated',
+                }}
+              />
+            </motion.div>
+          ))}
+
+          {/* Character */}
+          <motion.div
+            className="absolute left-1/2 transform -translate-x-1/2"
+            style={{
+              width: CHARACTER_SIZE,
+              height: CHARACTER_SIZE,
+              y: characterY,
+            }}
+          >
+            <img
+              src="/images/character.png"
+              alt="Character"
+              className="w-full h-full object-contain"
+              style={{
+                imageRendering: 'pixelated',
+                WebkitImageRendering: 'pixelated',
+                MozImageRendering: 'pixelated',
               }}
             />
-
-            {events.map((event, index) => (
-              <TimelineEvent
-                key={index}
-                event={event}
-                index={index}
-                totalEvents={events.length}
-                scrollProgress={scrollYProgress}
-              />
-            ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
-
-
-
   );
 };
 
 
 
 export default ScrollingTimeline;
+
