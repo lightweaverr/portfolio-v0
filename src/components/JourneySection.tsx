@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 
 
@@ -24,6 +24,68 @@ const ScrollingTimeline = ({ events }: any) => {
     [0, 1],
     ['-100%', '2000%']
   );
+
+  // Character sprite management based on scroll state
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [spriteSrc, setSpriteSrc] = useState('/images/character-rest.png');
+  const rafIdRef = useRef<number | null>(null);
+  const frameCountRef = useRef(0);
+  const walkToggleRef = useRef(false); // false -> right, true -> left
+  const scrollStopTimerRef = useRef<number | undefined>(undefined);
+
+  // Start/stop walking animation on scroll
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolling(true);
+      if (scrollStopTimerRef.current) {
+        window.clearTimeout(scrollStopTimerRef.current);
+      }
+      // Consider scrolling stopped after a short idle period
+      scrollStopTimerRef.current = window.setTimeout(() => {
+        setIsScrolling(false);
+      }, 120);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll as any);
+      if (scrollStopTimerRef.current) window.clearTimeout(scrollStopTimerRef.current);
+    };
+  }, []);
+
+  // RAF-driven frame alternation while scrolling
+  useEffect(() => {
+    if (!isScrolling) {
+      // Stop animating and reset to rest sprite
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+      setSpriteSrc('/images/character-rest.png');
+      frameCountRef.current = 0;
+      return;
+    }
+
+    const tick = () => {
+      frameCountRef.current += 1;
+      // Swap every 4 frames
+      if (frameCountRef.current % 8 === 0) {
+        walkToggleRef.current = !walkToggleRef.current;
+        setSpriteSrc(walkToggleRef.current ? '/images/character-left.png' : '/images/character-right.png');
+      }
+      rafIdRef.current = requestAnimationFrame(tick);
+    };
+
+    // Ensure we begin in a walking pose immediately
+    walkToggleRef.current = false;
+    setSpriteSrc('/images/character-right.png');
+    rafIdRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (rafIdRef.current !== null) cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    };
+  }, [isScrolling]);
 
   // Generate tiles for the path
   const tiles = Array.from({ length: PATH_LENGTH }, (_, index) => ({
@@ -75,8 +137,6 @@ const ScrollingTimeline = ({ events }: any) => {
                 className="w-full h-full object-cover"
                 style={{
                   imageRendering: 'pixelated',
-                  WebkitImageRendering: 'pixelated',
-                  MozImageRendering: 'pixelated',
                 }}
               />
             </motion.div>
@@ -92,13 +152,11 @@ const ScrollingTimeline = ({ events }: any) => {
             }}
           >
             <img
-              src="/images/character.png"
+              src={spriteSrc}
               alt="Character"
               className="w-full h-full object-contain"
               style={{
                 imageRendering: 'pixelated',
-                WebkitImageRendering: 'pixelated',
-                MozImageRendering: 'pixelated',
               }}
             />
           </motion.div>
