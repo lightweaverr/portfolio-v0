@@ -1,25 +1,47 @@
 import React from 'react'
+import LiquidGlass from './LiquidGlass'
+import Link from 'next/link'
+import Image from 'next/image'
 
 const Navbar = () => {
   return (
-    <nav className='w-full bg-transparent border-color-dark-secondary frosted-glass'>
-      <div className='max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 bg-transparent translucent-border'>
-        <div className='flex items-center justify-between h-16'>
-          <div className='flex shring-0'>
-            <span className='text-color-light-primary text-5xl font-bold pokemon-font'>Logo</span>
+    <nav className='fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] md:w-[90%] max-w-6xl'>
+      <LiquidGlass
+        blur={4}
+        opacity={0.0}
+        saturation={1.25}
+        className='rounded-2xl shadow-2xl'
+      >
+        <div className='flex items-center justify-between px-4 md:px-8 py-4'>
+          {/* Logo */}
+          <div className='flex items-center gap-2'>
+            <Image 
+              src="/images/logo.png" 
+              alt="Logo"
+              width={32}
+              height={32}
+              className="w-12 h-12 md:w-14 md:h-14 shadow-lg rounded-md pixelated"
+              unoptimized
+              style={{
+                imageRendering: 'pixelated',
+              }}
+            />
           </div>
-          <div className="hidden md:block">
-            <div className="flex items-baseline space-x-10">
-              <a href="#" className="text-color-light-secondary text-2xl hover:bg-color-dark-secondary hover:bg-opacity-30 px-3 py-2 pokemon-font pixelated-corners">Home</a>
-              <a href="#" className="text-color-light-secondary text-2xl hover:bg-color-dark-secondary hover:bg-opacity-30 px-3 py-2 pokemon-font pixelated-corners-2steps-4px">About</a>
-              <a href="#" className="text-color-light-secondary text-2xl hover:bg-color-dark-secondary hover:bg-opacity-30 px-3 py-2 pokemon-font pixelated-corners-3steps-4px-2">Contact</a>
-            </div>
-          </div>
-          <div>
-            {/* // TODO : what can be at the right? */}
+
+          {/* Navigation Links */}
+          <div className='flex gap-4 md:gap-8 items-center'>
+            <Link href="#home" className='pokemon-font text-sm md:text-base text-white hover:text-yellow-300 transition-colors'>
+              Home
+            </Link>
+            <Link href="#about" className='pokemon-font text-sm md:text-base text-white hover:text-yellow-300 transition-colors'>
+              About
+            </Link>
+            <Link href="#contact" className='pokemon-font text-sm md:text-base text-white hover:text-yellow-300 transition-colors'>
+              Contact
+            </Link>
           </div>
         </div>
-      </div>
+      </LiquidGlass>
     </nav>
   )
 }

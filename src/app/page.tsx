@@ -10,6 +10,7 @@ const events = [
   { year: 2024, description: "First freelance project" },
   { year: 2025, description: "First client project" },
 ];
+// TODO: Make the mouse pointer pixel art too.
 
 
 export default function Home() {
@@ -19,9 +20,9 @@ export default function Home() {
         <div className="fixed top-0 left-0 w-screen h-screen -z-10">
           <GameOfLife />
         </div>
+        
         <Navbar />
-
-      <LandingPage />
+        <LandingPage />
       </div>
       <JourneySection events={events} />
     </>
