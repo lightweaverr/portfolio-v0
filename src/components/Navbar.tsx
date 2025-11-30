@@ -1,5 +1,5 @@
 import React from 'react'
-import LiquidGlass from './LiquidGlass'
+import LiquidGlass from './LiquidGlass/LiquidGlass'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -7,16 +7,15 @@ const Navbar = () => {
   return (
     <nav className='fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] md:w-[90%] max-w-6xl'>
       <LiquidGlass
-        blur={4}
-        opacity={0.0}
+        blurAmount={4}
         saturation={1.25}
         className='rounded-2xl shadow-2xl'
       >
         <div className='flex items-center justify-between px-4 md:px-8 py-4'>
           {/* Logo */}
           <div className='flex items-center gap-2'>
-            <Image 
-              src="/images/logo.png" 
+            <Image
+              src="/images/logo.png"
               alt="Logo"
               width={32}
               height={32}
